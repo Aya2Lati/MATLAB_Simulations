@@ -1,8 +1,8 @@
 function singleParticle()
-    % Call the main function to setup the 3D environment and retrieve boundaries
+    % Calling main.m to setup the 3D environment
     [~, bounds] = main();
 
-    % Setup the figure for navigation visualisation
+    % Setting up a figure for visualisation
     figure;
     hold on;
     axis equal;
@@ -10,7 +10,7 @@ function singleParticle()
     ylim([0 bounds.y]);
     zlim([0 bounds.z]);
 
-    % Define goals, initial settings, and circling parameters
+    % Defining goals, initial settings, as well as circling parameters
     goals = [20, 175, 5; 
             50, 90, 10; 
             125, 150, 10; 
@@ -19,36 +19,36 @@ function singleParticle()
     particle_pos = origin;
     goalIndex = 1;
     
-    % Particle visual representation as a red sphere
+    % setting the particle.
     h = scatter3(particle_pos(1), particle_pos(2), particle_pos(3), 'filled', 'MarkerFaceColor', 'r');
-    view(3); % Sets the view to 3D perspective
-    grid on; % Display grid
+
+    view(3); %This will ensure that the view is a 3D perspective
+    grid on;
     xlabel('X');
     ylabel('Y');
     zlabel('Z');
     title('3D Navigation Simulation with Goals');
 
-    slowdownThreshold = 10; % Distance at which to start slowing down
+    slowdownThreshold = 10; %this is the distance at which the partisle will start to slow down
     circlingThreshold = 5;  % Distance at which to start circling
-    circlingRadius = 5;     % Radius of circling
-    circlingSpeed = 0.01;    % Angular speed for circling (radians per iteration)
-    minStepSize = 0.5;      % Minimum step size when slowing down
+    circlingRadius = 5;     %circling radius
+    circlingSpeed = 0.01;    %circling speed(essentially radians per iteration)
+    minStepSize = 0.5;      %the minimum step size when rotating
 
-    % Initialise GIF file
+    % Initialising GIF
     filename = 'singleParticle_simulation.gif';
-    
-    % Initialise the color map from the first frame to ensure consistency
     frame = getframe(gcf);
     im = frame2im(frame);
     [imind, cm] = rgb2ind(im, 256);
-    imwrite(imind, cm, filename, 'gif', 'Loopcount', inf); % Start the GIF
+    % Start the GIF
+    imwrite(imind, cm, filename, 'gif', 'Loopcount', inf);
     
-    % Navigate towards each goal
+    %Setting up the particle to navigate towards each goal
     while goalIndex <= size(goals, 1)
         goal = goals(goalIndex, :);
-        stepSize = 1; % Reset step size for new goal
+        stepSize = 1; % Resetting for new goal
         
-        % Slow down as we approach the goal
+        % as the aprticle approaches the goal, it will slow down
         while norm(particle_pos - goal) > circlingThreshold
             if norm(particle_pos - goal) < slowdownThreshold
                 stepSize = max(minStepSize, (norm(particle_pos - goal) / slowdownThreshold) * stepSize);
@@ -56,22 +56,22 @@ function singleParticle()
             direction = (goal - particle_pos) / norm(goal - particle_pos) * stepSize;
             particle_pos = particle_pos + direction;
 
-            % Update the position of the particle in the plot
+            %position update
             set(h, 'XData', particle_pos(1), 'YData', particle_pos(2), 'ZData', particle_pos(3));
             plot3(particle_pos(1), particle_pos(2), particle_pos(3), '.b');  % Trail
             drawnow;
             pause(0.005);
 
-            % Capture frame and add it to GIF using the consistent color map
+            %saving frame to GIF
             frame = getframe(gcf);
             im = frame2im(frame);
             [imind, ~] = rgb2ind(im, cm);
-            imwrite(imind, cm, filename, 'gif', 'WriteMode', 'append'); % Append to the GIF
+            imwrite(imind, cm, filename, 'gif', 'WriteMode', 'append'); % AppendS to the GIF
         end
         
-        % Start circling when close to the goal
+        %when close to the goal, the particle will start to encircle
         if norm(particle_pos - goal) < circlingThreshold
-            % Calculate number of steps to complete a full circle based on step size
+            %calculating the number of steps to complete a full circle
             numSteps = round(2 * pi * circlingRadius / stepSize);
             
             for step = 1:numSteps
@@ -79,9 +79,10 @@ function singleParticle()
                 offset = circlingRadius * [cos(angle), sin(angle), 0];
                 particle_pos = goal + offset;
                 
-                % Update the position of the particle in the plot
+                %updates the position of the particle in the plot
                 set(h, 'XData', particle_pos(1), 'YData', particle_pos(2), 'ZData', particle_pos(3));
-                drawnow limitrate; % For smoother animation
+                %for better visualiation, this limit is added
+                drawnow limitrate;
                 pause(0.00005);
 
                 % Capture frame and add it to GIF using the consistent color map
@@ -92,7 +93,7 @@ function singleParticle()
             end
         end
 
-        goalIndex = goalIndex + 1; % Move to the next goal
+        goalIndex = goalIndex + 1; %move on to the next goal
     end
 
     disp('Particle reached all goals!');
