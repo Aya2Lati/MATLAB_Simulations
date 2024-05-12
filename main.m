@@ -1,32 +1,37 @@
-% This will setup the 3D environment for the different simulations that will be run.
-% It will be called
 function [environment, bounds] = main()
-    % size of the 3D environment
-    environment = zeros(100, 100, 50);
-    bounds.x = 100; % size of the x-dimension
-    bounds.y = 100; % y-dimension
-    bounds.z = 50;  % z-dimension
+    % Defining the size of the 3D environment
+    % size along the x, y and z axis
+    bounds.x = 250; 
+    bounds.y = 200; 
+    bounds.z = 100; % This is like the height of the environment
 
-    % Initialising the environment
-    environment = zeros(bounds.x, bounds.y, bounds.z);
+    % Initialisation of the environment as a struct
+    environment = zeros(bounds.x, bounds.y, bounds.z);  
 
     % Display the environment if needed
-    visualiseEnvironment(environment, bounds);
+    visualiseEnvironment(bounds);
 end
 
-function visualiseEnvironment(env, bounds)
-    % This function visualizes the 3D environment.
-    % For a large environment, a more sophisticated visualization might be necessary.
+% Visualising the 3D environment
+    %This however will be commented out as main.m is called, multiple
+    %environments will be visualised
     
-    [X, Y, Z] = ndgrid(1:bounds.x, 1:bounds.y, 1:bounds.z);
-    scatter3(X(:), Y(:), Z(:), 1, env(:), 'filled');
-    axis([1 bounds.x 1 bounds.y 1 bounds.z]);
-    xlabel('X');
-    ylabel('Y');
-    zlabel('Z');
-    title('3D Environment');
-    grid on;
-    drawnow;
+function visualiseEnvironment(bounds)
+%{
+    fig = figure('Name', '3D Environment Visualisation');
+    ax = axes('Parent', fig);
+    hold(ax, 'on');
+    view(ax, 3);
+    axis(ax, [1 bounds.x 1 bounds.y 1 bounds.z]);
+    xlabel(ax, 'X');
+    ylabel(ax, 'Y');
+    zlabel(ax, 'Z');
+    title(ax, '3D Environment');
+    grid(ax, 'on');
+    
+%}
 
-    return;
+
+
+    drawnow; % Update the figure window
 end
