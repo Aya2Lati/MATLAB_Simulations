@@ -1,41 +1,42 @@
 function formation(~)
-    % Setup environment by calling main.m
+    %environment setup by calling main.m
     [~, bounds] = main();
     
-    % Define initial coordinates and delay
+    % Defining the initial coordinates & delay
     initialCoords = [50, 100, 10];
     targetCoords = [225, 100, 10];
-    delayBeforeStart = 5; % seconds
-    numParticles = 7; % including leader
+    %for better visualisation, a delay is needed
+    delayBeforeStart = 5; 
+     %no. of particles including the leader, an odd number is preferable
+    numParticles = 7;
     spacing = 10;
 
-    % Create 7 sphere particles in a V formation
+    %initialsing 7 particles in a V formation
     particles = initialiseFormation(numParticles, initialCoords, targetCoords, spacing);
 
-    % Delay before starting the movement
+    %delaying before they start moving
     pause(delayBeforeStart);
 
-    % Initialise GIF creation
+    % Initialise GIF
     filename = 'V_Formation.gif';
     firstFrame = true;  % Flag to check if it's the first frame of the GIF
 
     % Main simulation loop
     while ~hasReachedTarget(particles, targetCoords)
-        % Apply the consensus algorithm
+        %consensus algorithm
         particles = applyConsensusAlgorithm(particles, bounds);
 
-        % Avoid collisions
+        %collision avoidance
         particles = avoidCollisions(particles, bounds);
 
-        % Move particles towards the target
+        %Move particles towards the target
         particles = moveParticles(particles, targetCoords, bounds);
 
-        % Update the visualisation and capture the frame for the GIF
+        %updating the visualisation & acquiring the frame for the GIF
         updateVisualisation(particles, bounds, filename, firstFrame);
-        firstFrame = false;  % Update flag after the first frame
+        firstFrame = false;
 
-        % Check if the simulation should pause here for visualisation purposes
-        pause(0.005); % Adjust pause duration for real-time effect or remove if not needed
+        pause(0.005); %this helps in ensuring that the visualisation if more realistic in term sof speed
     end
     
     disp('Leader has reached the target, simulation ended.');
@@ -47,24 +48,26 @@ function particles = initialiseFormation(numParticles, initialCoords, targetCoor
     % Initialise particles array
     particles = zeros(numParticles, 3);
     
-    % Set the leader at the initial coordinates
+    % Setting the leader at the initial coordinates
     particles(1, :) = initialCoords;
     
-    % Calculate direction vector towards the target and normalise
+    % Calculation of theal direction vector towards the target and
+    % normalising
     directionVector = targetCoords - initialCoords;
     unitDirectionVector = directionVector / norm(directionVector);
     
-    % Calculate the perpendicular vector(s)
+    % Calculatation of the perpendicular vectors
     if all(unitDirectionVector(1:2) == 0)
-        % Special case when the movement is vertical
+        %if and when the movement is vertical
         perpendicularVector = [1, 0, 0];
     else
-        % General case for a direction in the XY plane
+        %navigation in the XY plane
         perpendicularVector = [unitDirectionVector(2), -unitDirectionVector(1), 0];
         perpendicularVector = perpendicularVector / norm(perpendicularVector);
     end
     
-    % Determine the spacing for the inverted V formation
+    
+    %having had trouble with where the V was facing, i inverted it
     rowSpacing = spacing;  % Distance between the leader and the next particle along the movement direction
     columnSpacing = spacing / 2;  % Lateral distance between particles in the V-formation
     
@@ -87,29 +90,28 @@ end
 function particles = applyConsensusAlgorithm(particles, bounds)
     num_particles = size(particles, 2);
     
-    % Assuming all particles are neighbors for simplicity
     neighbors = true(num_particles, num_particles);
     neighbors = neighbors & ~eye(num_particles);  % Exclude self by setting diagonal to false
     
-    % Initialise new positions with current positions
+    %Initialisation of the new positions with current positions
     new_positions = particles;
     
     % The consensus algorithm will adjust each particle's position towards the average of its neighbors
     for i = 1:num_particles
-        % Calculate the average position of neighbors excluding the particle itself
+        %average position of neighbors
         average_position = mean(particles(neighbors(i, :), :), 1);
         
-        % Update the particle's position slightly towards the average position
-        alpha = 0.1;  % Example value for alpha, controls the rate of adjustment
+        %updating the particle's position slightly towards the average position
+        alpha = 0.1;  %value for alpha controls, this is the rate of adjustment
         new_positions(i, :) = particles(i, :) + alpha * (average_position - particles(i, :));
         
-        % Ensure the new position does not exceed the environment bounds
+        %ensuring the new position does not exceed the environment bounds
         new_positions(i, 1) = min(max(new_positions(i, 1), 1), bounds.x);
         new_positions(i, 2) = min(max(new_positions(i, 2), 1), bounds.y);
         new_positions(i, 3) = min(max(new_positions(i, 3), 1), bounds.z);
     end
     
-    % Update particles with the new calculated positions
+    %updating particles with the new calculated positions
     particles = new_positions;
 end
 
@@ -119,11 +121,11 @@ end
 
 function particles = avoidCollisions(particles, bounds)
     num_particles = size(particles, 1);
-    safe_distance = 8;  % Define a safe distance between particles
+    safe_distance = 8;  %safe distance between particles
 
-    % Loop over each particle and compare with all others
+    % Looping over each particle and comparing it with all hte others
     for i = 1:num_particles
-        for j = i+1:num_particles  % Avoid double checking by only comparing with subsequent particles
+        for j = i+1:num_particles
             distance_vector = particles(j, :) - particles(i, :);
             distance = norm(distance_vector);
             
@@ -144,11 +146,11 @@ end
 function particles = moveParticles(particles, targetCoords, bounds)
     numParticles = size(particles, 1);
     stepSize = 1;
-    formationSpacing = 10;  % Define inside the function
-    sideOffset = 5;          % Define inside the function
+    formationSpacing = 10;
+    sideOffset = 5;   
 
     for i = 1:numParticles
-        if i == 1  % Leader moves directly towards the target
+        if i == 1  %leader moves directly towards the target
             direction = targetCoords - particles(i, :);
             direction = direction / norm(direction);
             particles(i, :) = particles(i, :) + stepSize * direction;
@@ -170,7 +172,8 @@ end
 %
 
 function updateVisualisation(particles, bounds, filename, firstFrame)
-    % Check if a figure exists, if not create one
+    %checking if a figure exists, this was done as the simulation was not
+    %visualised
     fig = findobj('Type', 'figure', 'Name', 'Particle Simulation');
     if isempty(fig)
         fig = figure('Name', 'Particle Simulation');
@@ -186,20 +189,20 @@ function updateVisualisation(particles, bounds, filename, firstFrame)
         scatter3(ax, particles(:,1), particles(:,2), particles(:,3), 'filled', 'MarkerFaceColor', 'b');
     else
         ax = get(fig, 'Children');
-        % Retrieve the scatter plot object
+        %retrieving the scatter plot object
         scat = findobj(ax, 'Type', 'scatter');
-        % Update particle positions on the scatter plot
+        %update particle positions on the scatter plot
         set(scat, 'XData', particles(:,1), 'YData', particles(:,2), 'ZData', particles(:,3));
     end
 
-    % Adjust the axis limits if particles move outside the initial bounds
+    %adjusting the axis limits when the particles move outside the initial bounds
     xlim(ax, [0 bounds.x]);
     ylim(ax, [0 bounds.y]);
     zlim(ax, [0 bounds.z]);
 
-    drawnow; % Ensure the plot updates are rendered immediately
+    drawnow;
 
-    % Capture the frame for the GIF
+    %capturing the frame for the GIF
     frame = getframe(gcf);
     im = frame2im(frame);
     [imind, cm] = rgb2ind(im, 256);
@@ -214,15 +217,16 @@ end
 %
 
 function hasReached = hasReachedTarget(particles, targetCoords)
-    % Assume leader is the first particle in the array
+    %the leader should be at the front in order for the simulation to end
     leaderIndex = 1; 
-    % Define a tolerance within which the leader is considered to have reached the target
-    tolerance = 1;  % You can adjust this tolerance based on your simulation needs
+    %this is for the leader and aids in determining if the target has been
+    %reached
+    tolerance = 1;
     
-    % Calculate the Euclidean distance from the leader's current position to the target
+    %Euclidean distance from the leader's current position to the target
     distance = norm(particles(leaderIndex, :) - targetCoords);
     
-    % Check if the leader is within the tolerance distance to the target coordinates
+    %checking if the leader is within the tolerance distance to the target coordinates
     hasReached = distance <= tolerance;
 end
 
