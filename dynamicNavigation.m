@@ -1,25 +1,24 @@
 function dynamicNavigation()
-    % Setup environment and initialise
+    %environment setup
     [environment, bounds] = main();
     goals = [25, 125, 5; 100, 100, 10; 150, 50, 10; 200, 175, 10];
     obstacles = [20, 75, 5; 75, 100, 10; 125, 60, 10; 175, 125, 10];
     obstacleSize = 10;
     
-    % Define the grid resolution for the navigation grid
-    gridResolution = 5;  % Grid resolution defines the granularity of the grid
+    %grid resolution
+    gridResolution = 5;
 
-    % Initialise visualisation and particle
+    % Initialisation of visualisation & particle
     figHandle = figure;
     axesHandle = axes('Parent', figHandle);
     setupAxes(axesHandle, bounds);
     drawCubes(obstacles, obstacleSize, 'r', axesHandle);
     particle = InitialiseParticle([0, 0, 0], 1);
 
-    % Create the navigation grid based on environment boundaries and obstacles
+    %creating the navigation grid based on environment boundaries and obstacles
     navigationGrid = createNavigationGrid(bounds, obstacles, gridResolution);
 
-    % Navigate through goals using the custom navigation grid
-    %navigateParticle(particle, goals, obstacles, navigationGrid, gridResolution, axesHandle);
+    %initialising navigation
     navigateParticle(particle, goals, obstacles, obstacleSize, navigationGrid, gridResolution, axesHandle);
 
 end
@@ -35,7 +34,7 @@ function navigateParticle(particle, goals, obstacles, obstacleSize, navigationGr
             continue;
         end
 
-        for node = navigationPath'  % Iterate through the path
+        for node = navigationPath'  % Iterating through the navigation path
             nextPosition = node * gridResolution;
             disp(['Moving from ', mat2str(particle.position), ' to ', mat2str(nextPosition)]);
             if detectObstacles(particle.position, nextPosition, obstacles, obstacleSize)
@@ -48,7 +47,7 @@ function navigateParticle(particle, goals, obstacles, obstacleSize, navigationGr
                 disp('Reached goal.');
                 break;
             end
-            pause(0.1);  % Ensure the movement is visible
+            pause(0.1); 
         end
     end
     disp('Particle reached all goals!');
@@ -70,9 +69,9 @@ function obstacleDetected = detectObstacles(currentPosition, nextPosition, obsta
 end
 
 function intersects = lineIntersectsSphere(p1, p2, center, radius)
-    % Vector from p1 to p2
+    %vector from p1 to p2
     d = p2 - p1;
-    % Vector from p1 to the center of the sphere
+    %vector from p1 to the center of the sphere
     f = p1 - center;
     
     a = dot(d, d);
@@ -86,47 +85,41 @@ end
 
 
 function navigationGrid = createNavigationGrid(bounds, obstacles, gridResolution)
-    % Calculate the number of grid cells in each dimension
+    %no. of grid cells in each dimension
     gridSizeX = ceil(bounds.x / gridResolution);
     gridSizeY = ceil(bounds.y / gridResolution);
     gridSizeZ = ceil(bounds.z / gridResolution);
 
-    % Initialise the grid as a 3D matrix of zeros (free spaces)
+    %initialising the 3D matrix grid as zeros
     navigationGrid = zeros(gridSizeX, gridSizeY, gridSizeZ);
 
     % Process each obstacle to mark the grid cells it occupies
     for i = 1:size(obstacles, 1)
-        % Convert obstacle coordinates to grid indices
+        %convertion of obstacle coordinates to grid indices
         xIndex = min(max(round(obstacles(i, 1) / gridResolution) + 1, 1), gridSizeX);
         yIndex = min(max(round(obstacles(i, 2) / gridResolution) + 1, 1), gridSizeY);
         zIndex = min(max(round(obstacles(i, 3) / gridResolution) + 1, 1), gridSizeZ);
 
-        % Mark the corresponding grid cell as obstructed (1)
+        %highlighting a corresponding grid cell
         navigationGrid(xIndex, yIndex, zIndex) = 1;
     end
 end
 
-
-
-% Define other helper functions (InitialiseParticle, atGoal, moveTo, etc.) here
 function grid = createGrid(bounds, obstacles, gridResolution)
-    % Calculate the number of grid cells in each dimension
+    % no. of grid cells in each dimension
     gridSizeX = ceil(bounds.x / gridResolution);
     gridSizeY = ceil(bounds.y / gridResolution);
     gridSizeZ = ceil(bounds.z / gridResolution);
 
-    % Initialise the grid as a 3D matrix of zeros (free spaces)
+    % initialising the 3D matrix grid as zeros
     grid = zeros(gridSizeX, gridSizeY, gridSizeZ);
 
-    % Process each obstacle to mark the grid cells it occupies
+    %marking each obstacle with each grid cells occupied
     for i = 1:size(obstacles, 1)
-        % Assume each obstacle is a point for simplicity. For extended obstacles, more complex logic is needed.
-        % Convert obstacle coordinates to grid indices
         xIndex = min(max(round(obstacles(i, 1) / gridResolution) + 1, 1), gridSizeX);
         yIndex = min(max(round(obstacles(i, 2) / gridResolution) + 1, 1), gridSizeY);
         zIndex = min(max(round(obstacles(i, 3) / gridResolution) + 1, 1), gridSizeZ);
 
-        % Mark the corresponding grid cell as obstructed (1)
         grid(xIndex, yIndex, zIndex) = 1;
     end
 end
@@ -145,61 +138,58 @@ function setupAxes(ax, bounds)
 end
 
 function path = AStarSearch(grid, startCoords, goalCoords)
-    % Extract grid dimensions for boundary checks
+    %extracting grid dimensions 4 boundary checks
     [gridSizeX, gridSizeY, gridSizeZ] = size(grid);
     
-    % Initialise the open and closed lists
+    %initialising the open & closed lists
     openList = containers.Map('KeyType','char','ValueType','any');
     closedList = containers.Map('KeyType','char','ValueType','any');
     
-    % Create the start and goal nodes
+    %start & goal nodes
     startNode = struct('Position', startCoords, 'G', 0, 'H', heuristic(startCoords, goalCoords), 'F', heuristic(startCoords, goalCoords), 'Parent', []);
     goalNode = struct('Position', goalCoords, 'G', 0, 'H', 0, 'F', 0, 'Parent', []);
     openList(getKeyFromPosition(startCoords)) = startNode;
     
-    % Main loop of A*
+    %Main loop for the A* algo
     while ~isempty(openList)
-        % Find the node in open list with the lowest F score
         currentNode = extractMin(openList);
         
-        % Move current node from open list to closed list
+        %moving current node from open list to closed list
         keyCurrent = getKeyFromPosition(currentNode.Position);
         openList.remove(keyCurrent);
         closedList(keyCurrent) = currentNode;
         
-        % Check if the goal is reached
+        %checking if the goal is reached
         if all(currentNode.Position == goalNode.Position)
             path = reconstructPath(currentNode);
             return;
         end
         
-        % Generate neighbors (adjacent grid cells)
-        neighbors = getNeighbors(currentNode.Position, gridSizeX, gridSizeY, gridSizeZ);
+        %generating neighbours
+        neighbours = getNeighbours(currentNode.Position, gridSizeX, gridSizeY, gridSizeZ);
         
-        % Iterate through each neighbor
-        for i = 1:size(neighbors, 1)
-            neighborCoords = neighbors(i, :);
-            keyNeighbor = getKeyFromPosition(neighborCoords);
+        %iterating through each neighbour
+        for i = 1:size(neighbours, 1)
+            neighbourCoords = neighbours(i, :);
+            keyNeighbour = getKeyFromPosition(neighbourCoords);
             
-            % Skip if neighbor is in the closed list or is blocked
-            if isKey(closedList, keyNeighbor) || grid(neighborCoords(1), neighborCoords(2), neighborCoords(3)) == 1
+            % Skip if neighbour is in the closed list or is blocked
+            if isKey(closedList, keyNeighbour) || grid(neighbourCoords(1), neighbourCoords(2), neighbourCoords(3)) == 1
                 continue;
             end
             
-            % Calculate the G score for the neighbor
-            tentativeG = currentNode.G + norm(neighborCoords - currentNode.Position);
+            %calculating the G score for the neighbour
+            tentativeG = currentNode.G + norm(neighbourCoords - currentNode.Position);
             
-            % If neighbor is not in open list or tentative G score is lower
-            if ~isKey(openList, keyNeighbor) || tentativeG < openList(keyNeighbor).G
-                neighborNode = struct('Position', neighborCoords, 'G', tentativeG, ...
-                                      'H', heuristic(neighborCoords, goalCoords), 'F', tentativeG + heuristic(neighborCoords, goalCoords), ...
+            %if neighbour is not in open list or the tentative G score is lower
+            if ~isKey(openList, keyNeighbour) || tentativeG < openList(keyNeighbour).G
+                neighbourNode = struct('Position', neighbourCoords, 'G', tentativeG, ...
+                                      'H', heuristic(neighbourCoords, goalCoords), 'F', tentativeG + heuristic(neighbourCoords, goalCoords), ...
                                       'Parent', currentNode);
-                openList(keyNeighbor) = neighborNode;
+                openList(keyNeighbour) = neighbourNode;
             end
         end
     end
-    
-    % If no path is found
     path = [];
 end
 
@@ -208,7 +198,7 @@ function key = getKeyFromPosition(pos)
 end
 
 function minNode = extractMin(openList)
-    % Extract the node with the minimum F value from the open list
+    %extracting the node with the minimum F value from the open list
     minF = inf;
     minNode = [];
     keys = openList.keys;
@@ -221,25 +211,24 @@ function minNode = extractMin(openList)
     end
 end
 
-function neighbors = getNeighbors(position, maxX, maxY, maxZ)
-    % Define possible moves (8-connected in 2D, similar extension can be made for 3D)
+function neighbours = getNeighbours(position, maxX, maxY, maxZ)
     moves = [-1, 0, 0; 1, 0, 0; 0, -1, 0; 0, 1, 0; 0, 0, -1; 0, 0, 1];
-    neighbors = [];
+    neighbours = [];
     for move = moves'
         newPos = position + move';
-        if all(newPos >= 1 & newPos <= [maxX, maxY, maxZ])  % Check grid boundaries
-            neighbors = [neighbors; newPos];
+        if all(newPos >= 1 & newPos <= [maxX, maxY, maxZ])  %checking grid boundaries
+            neighbours = [neighbours; newPos];
         end
     end
 end
 
 function h = heuristic(pos, goalPos)
-    % Euclidean distance as a heuristic
+    %euclidean distance
     h = norm(pos - goalPos);
 end
 
 function path = reconstructPath(node)
-    % Reconstruct the path from start to goal by following parent links
+    %reconstructing the path from start to finish
     path = [];
     while ~isempty(node)
         path = [node.Position; path];
@@ -248,12 +237,12 @@ function path = reconstructPath(node)
 end
 
 function particle = InitialiseParticle(initialPosition, stepSize)
-    % Ensure initialPosition is a row vector
+    %ensuring that the initialPosition is a row vector
     if size(initialPosition, 1) > 1
-        initialPosition = initialPosition';  % Transpose if it's a column vector
+        initialPosition = initialPosition';  %if it is a column vector
     end
     particle = struct;
-    particle.position = initialPosition;  % Set as a row vector
+    particle.position = initialPosition;  %set as a row vector
     particle.stepSize = stepSize;
 end
 
@@ -261,17 +250,15 @@ end
 
 
 function drawCubes(obstacles, obstacleSize, color, ax)
-    % Each cube is defined by 8 vertices and 6 faces
-    halfSize = (obstacleSize / 2) * 2;  % Enlarge the cube by 2.5 times
+    %each cube has 8 vertices & 6 faces
+    halfSize = (obstacleSize / 2) * 2;
     vertices = [-1 -1 -1; 1 -1 -1; 1 1 -1; -1 1 -1; ...
                 -1 -1 1; 1 -1 1; 1 1 1; -1 1 1] * halfSize;
     faces = [1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 1 2 3 4; 5 6 7 8];
     
-    % Draw each obstacle as a cube
     for i = 1:size(obstacles, 1)
-        % Calculate the absolute positions of vertices for each cube
+        %absolute positions of vertices for each cube
         cubeVertices = vertices + obstacles(i, :);
-        % Plot each face of the cube
         for j = 1:size(faces, 1)
             face = cubeVertices(faces(j, :), :);
             fill3(ax, face(:,1), face(:,2), face(:,3), color, 'FaceAlpha', 0.5);
@@ -279,49 +266,45 @@ function drawCubes(obstacles, obstacleSize, color, ax)
     end
 end
 
-
-
 %
 
 function flag = atGoal(position, goal)
-    % Define the proximity threshold
-    threshold = 1;  % Distance within which the particle is considered to have reached the goal
+    %defining the proximity threshold
+    threshold = 1;
 
-    % Calculate the Euclidean distance between the current position and the goal
+    %euclidean distance between the current position and the goal
     distance = norm(position - goal);
 
-    % Check if the particle is within the threshold distance
+    %checking if the particle is within the threshold distance
     flag = distance <= threshold;
 end
 
 %
 
 function pos = moveTo(position, goal)
-    % Ensure input vectors are row vectors
     position = position(:)';
     goal = goal(:)';
 
     direction = goal - position;
     distance = norm(direction);
-    direction = direction / max(distance, eps);  % Normalize safely
+    direction = direction / max(distance, eps); 
 
-    pos = position + direction * min(1, distance);  % Move towards the goal
+    pos = position + direction * min(1, distance); 
 end
-
 
 %
 
 function grid = updateGridWithObstacles(grid, obstacles, obstacleSize, gridResolution)
-    % Function to update the navigation grid dynamically based on obstacles
+    %this function is meant to update the navigation grid dynamically based on obstacles
     
-    % Iterate through each obstacle and mark the grid cells as blocked
+    %iterating through each obstacle
     for i = 1:size(obstacles, 1)
-        % Calculate grid cell coordinates from obstacle coordinates
+        %grid cell coordinates in relation to obstacle coordinates
         gridX = round(obstacles(i, 1) / gridResolution) + 1;
         gridY = round(obstacles(i, 2) / gridResolution) + 1;
         gridZ = round(obstacles(i, 3) / gridResolution) + 1;
         
-        % Mark surrounding cells as blocked based on the obstacle size
+        %marking surrounding cells as blocked in accordance to the obstacle size
         range = ceil(obstacleSize / (2 * gridResolution));
         minX = max(1, gridX - range);
         maxX = min(size(grid, 1), gridX + range);
@@ -330,11 +313,12 @@ function grid = updateGridWithObstacles(grid, obstacles, obstacleSize, gridResol
         minZ = max(1, gridZ - range);
         maxZ = min(size(grid, 3), gridZ + range);
         
-        grid(minX:maxX, minY:maxY, minZ:maxZ) = 1;  % Mark cells as blocked
+        grid(minX:maxX, minY:maxY, minZ:maxZ) = 1;
     end
 end
 
 %
+
 function pos = avoidObstacles(position, goal, obstacles, bounds)
     nearestObstacle = findObstacleOnPath(position, obstacles, goal);
     toGoal = goal - position;
@@ -376,13 +360,13 @@ end
 
 
 function nearestObstacle = findNearestObstacle(position, obstacles)
-    % Calculate Euclidean distances from the current position to each obstacle
+    %euclidean distances from the current position to each obstacle
     distances = sqrt(sum((obstacles - position).^2, 2));
     
-    % Find the index of the minimum distance
+    %finding the index of minDistance
     [minDistance, idx] = min(distances);
     
-    % Select the nearest obstacle based on the index of the minimum distance
+    %nearest obstacle based on the index of the minDistance
     nearestObstacle = obstacles(idx, :);
 end
 
