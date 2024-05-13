@@ -2,6 +2,9 @@
 
 This repository contains implementations of drone swarm simulation that explores various stages of development, from single-particle navigation to complex swarm behaviors and challenges in obstacle avoidance.
 
+## GIF
+Simulations have been attached as GIFs
+
 ## Stages Overview
 
 ### Stage 0 
