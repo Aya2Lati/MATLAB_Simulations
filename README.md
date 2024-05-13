@@ -1,6 +1,6 @@
 # MATLAB_Simulations
 
-This repository contains the implementation of a drone swarm simulation that explores various stages of development, from single-particle navigation to complex swarm behaviors and challenges in obstacle avoidance.
+This repository contains implementations of drone swarm simulation that explores various stages of development, from single-particle navigation to complex swarm behaviors and challenges in obstacle avoidance.
 
 ## Stages Overview
 
@@ -17,12 +17,12 @@ Formation Initialisation - Implements and verifies the initial positioning of a 
 Formation Transition - Demonstrates the swarm's ability to transition between different formations (V, Line, Circle) while maintaining cohesion.
 
 ### Stage 4 
-Obstacle Avoidance for Single Particle - Develops and tests obstacle detection and avoidance for a single particle, identifying potential challenges for extending this capability to a swarm.
+Obstacle Avoidance for Single Particle - Develops and tests obstacle detection and avoidance for a single particle, identifying potential challenges for extending this capability to a swarm. This however faced issues due to failure to implement successfuly the obstacle avoidance
 
 ### Stage 5 
-Swarm-Wide Obstacle Avoidance - Intended to apply the obstacle avoidance strategies from Stage 4 to the entire swarm. However, this stage was not successfully implemented due to complexities in coordinating swarm movements and obstacle detection.
+Swarm-Wide Obstacle Avoidance - Intended to apply the obstacle avoidance strategies from Stage 4 to an entire swarm. However, this stage was not successfully implemented due to complexities in coordinating swarm movements and obstacle detection.
 
 # Future Work
-Further development will focus on overcoming the challenges faced in Stage 5, enhancing the algorithms for swarm-wide obstacle avoidance, and improving the overall robustness and visualisation of the simulation.
+Further development will focus on overcoming the challenges faced in Stage 4 and 5, enhancing the algorithms for swarm-wide obstacle avoidance, and improving the overall robustness and visualisation of the simulation.
 
 
