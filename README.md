@@ -22,7 +22,7 @@ Obstacle Avoidance for Single Particle - Develops and tests obstacle detection a
 ### Stage 5 
 Swarm-Wide Obstacle Avoidance - Intended to apply the obstacle avoidance strategies from Stage 4 to the entire swarm. However, this stage was not successfully implemented due to complexities in coordinating swarm movements and obstacle detection.
 
-Future Work
+# Future Work
 Further development will focus on overcoming the challenges faced in Stage 5, enhancing the algorithms for swarm-wide obstacle avoidance, and improving the overall robustness and visualisation of the simulation.
 
 
