@@ -16,9 +16,11 @@ Single Particle Navigation - Tests basic navigation capabilities of a single par
 
 ### Stage 2 
 Formation Initialisation - Implements and verifies the initial positioning of a swarm in a V formation, ensuring cohesion and correct particle placement.
+![](https://github.com/Aya2Lati/MATLAB_Simulations/blob/main/V_Formation.gif)
 
 ### Stage 3
 Formation Transition - Demonstrates the swarm's ability to transition between different formations (V, Line, Circle) while maintaining cohesion.
+![](https://github.com/Aya2Lati/MATLAB_Simulations/blob/main/dynamic_particleFormation.gif)
 
 ### Stage 4 
 Obstacle Avoidance for Single Particle - Develops and tests obstacle detection and avoidance for a single particle, identifying potential challenges for extending this capability to a swarm. This however faced issues due to failure to implement successfuly the obstacle avoidance
