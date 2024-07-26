@@ -12,6 +12,7 @@ Initial Setup - Establishes the basic 3D environment for the simulation, setting
 
 ### Stage 1 
 Single Particle Navigation - Tests basic navigation capabilities of a single particle moving towards predefined goals within the 3D environment.
+https://github.com/Aya2Lati/MATLAB_Simulations/blob/main/singleParticle_simulation.gif
 
 ### Stage 2 
 Formation Initialisation - Implements and verifies the initial positioning of a swarm in a V formation, ensuring cohesion and correct particle placement.
